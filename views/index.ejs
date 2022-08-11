@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
+  </head>
+  <body>
+
+    <h1 style="text-align:center;">Movies title</h1>
+    <div class="container" id="container">
+      <%for(let movie of value){ %>
+      <div class="imageurl card mb-3" style="width: 30%;">
+        <img src="<%=movie.image%>"  alt="image" >
+        <div style="text-align: center;">Title:<%=movie.title%></div>
+        <div style="text-align: center;">Description:<%=movie.description%></div>
+        <div style="text-align: center;">Price:<%=movie.price%></div>
+      </div>
+      <% } %>
+    </div>  
+
+     
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
