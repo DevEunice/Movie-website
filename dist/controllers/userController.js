@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getuser = exports.LoginUser = exports.RegisterUser = void 0;
+exports.getUniqueUserMovie = exports.getuser = exports.LoginUser = exports.RegisterUser = void 0;
 const uuid_1 = require("uuid");
 const utils_1 = require("../utils/utils");
 const user_1 = require("../model/user");
@@ -15,7 +15,7 @@ async function RegisterUser(req, res, next) {
         const validationResult = utils_1.registerSchema.validate(req.body, utils_1.options);
         if (validationResult.error) {
             return res.status(400).json({
-                Error: validationResult.error.details[0].message
+                Error: validationResult.error.details[0].message,
             });
         }
         const duplicatEmail = await user_1.UserInstance.findOne({ where: { email: req.body.email } });
@@ -64,12 +64,16 @@ async function LoginUser(req, res, next) {
                 message: "Password do not match"
             });
         }
-        if (validUser) {
-            res.status(200).json({
-                message: "Successfully logged in",
-                token,
-                User
+        else {
+            res.cookie("token", token, {
+                httpOnly: true,
+                maxAge: 1000 * 60 * 60 * 24,
             });
+            res.cookie("id", id, {
+                httpOnly: true,
+                maxAge: 1000 * 60 * 60 * 24,
+            });
+            res.redirect("/users/dashboard");
         }
     }
     catch (err) {
@@ -92,7 +96,7 @@ async function getuser(req, res, next) {
                 }] });
         console.log("after");
         res.status(200).json({
-            msg: "You have successfully fetch all todos",
+            msg: "You have successfully fetch all movies",
             count: record.count,
             record: record.rows
         });
@@ -105,4 +109,23 @@ async function getuser(req, res, next) {
     }
 }
 exports.getuser = getuser;
+async function getUniqueUserMovie(req, res, next) {
+    let id = req.cookies.id;
+    try {
+        const record = await user_1.UserInstance.findOne({
+            where: { id }, include: [{
+                    model: movie_1.MovieInstance,
+                    as: "movies"
+                }]
+        });
+        res.render("dashboard", { record });
+    }
+    catch (error) {
+        res.status(500).json({
+            msg: "failed to read",
+            route: "/read"
+        });
+    }
+}
+exports.getUniqueUserMovie = getUniqueUserMovie;
 //# sourceMappingURL=userController.js.map

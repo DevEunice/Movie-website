@@ -16,16 +16,22 @@ export async function Movie(req:Request | any, res:Response, next:NextFunction) 
              Error:validationResult.error.details[0].message
           })
        }
-       console.log(verified);
-       console.log(id);
+     
        
        
-      const record = await MovieInstance.create({...req.body, id, userId:verified.id})
-     return res.status(201).json({
-          msg:"You have successfully created a todo",
-          record
-      })
+      const record = await MovieInstance.create({id, ...req.body, userId: verified.id})
+   //   return res.status(201).json({
+   //        msg:"You have successfully created a movie",
+   //        record
+   //    })
+   res.redirect('/users/dashboard')
+
+   // const user = await UserInstance.findOne({
+   //    where: {id: verified.id},
+   //    include: [{ model: MovieInstance, as: "movies"}]
+   // })
    
+   //res.redirect("/users/dashboard")
 
    }catch(err){
       console.log(err);
@@ -49,12 +55,19 @@ export async function getMovies(req:Request, res:Response, next:NextFunction) {
          as:'users'
         }]
    });
+   const eunice = req.headers['postman']
+   if(eunice){
+      res.status(200).json({
+         msg:"You have successfully fetch all movies",
+         count:record.count,
+         record:record.rows 
+   })
+ }else{
    res.render("index", {value: record.rows})
-       res.status(200).json({
-          msg:"You have successfully fetch all todos",
-          count:record.count,
-          record:record.rows
-       })
+   
+}
+   
+       
 }catch(error){
    console.log(error);
    
@@ -71,14 +84,16 @@ export async function getSingleMovies(req:Request, res:Response, next:NextFuncti
    try{ 
     const  {id} = req.params
    const record = await MovieInstance.findOne({where: {id}})
-   return res.status(200).json({
-      msg:"Successfully gotten user information",
-      record
-   })
+   // return res.status(200).json({
+   //    msg:"Successfully gotten user information",
+   //    record:record
+   // })
+
+   return record
 
 }catch(error){
     res.status(500).json({
-       msg:"failed to read single todo",
+       msg:"failed to read single movie",
        route:"/read/:id"
     })
 }
@@ -99,7 +114,7 @@ export async function updateMovies(req:Request, res:Response, next:NextFunction)
       const record = await MovieInstance.findOne({where: {id}})
        if(!record){
          return res.status(404).json({
-            Error:"Cannot find existing todo",
+            Error:"Cannot find existing movie",
          })
        }
        const updatedrecord = await record.update({
@@ -108,10 +123,13 @@ export async function updateMovies(req:Request, res:Response, next:NextFunction)
           image:image,
           price:price
        })
-       res.status(200).json({
-          msg:"You have successfully updated your todo",
-          updatedrecord
-       })
+       res.redirect('/users/dashboard')
+
+      //   res.status(200).json({
+      //     msg:"You have successfully updated your movie",
+      //     updatedrecord
+      //  })
+
 }catch(error){
     res.status(500).json({
        msg:"failed to update",
@@ -126,14 +144,16 @@ export async function deleteMovies(req:Request, res:Response, next:NextFunction)
       const record = await MovieInstance.findOne({where: {id}})
       if(!record){
          return res.status(404).json({
-            msg:"Cannot find todo"
+            msg:"Cannot find movie"
          })
       }
       const deletedRecord = await record.destroy()
-      return res.status(200).json({
-         msg: "Todo deleted successfully",
-         deletedRecord 
-      })
+      // return res.status(200).json({
+      //    msg: "Movie deleted successfully",
+      //    deletedRecord 
+      // })
+
+      res.redirect('/users/dashboard')
 }catch(error){
     res.status(500).json({
        msg:"failed to delete",

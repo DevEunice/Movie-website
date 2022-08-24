@@ -8,8 +8,5 @@ const movieController_1 = require("../controllers/movieController");
 const router = express_1.default.Router();
 // import {RegisterUser, LoginUser, getuser} from '../controllers/userController'
 router.get('/', movieController_1.getMovies);
-router.get('/registration', (req, res) => {
-    res.render("registration");
-});
 exports.default = router;
 //# sourceMappingURL=pages.js.map

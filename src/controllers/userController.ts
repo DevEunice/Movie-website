@@ -5,6 +5,7 @@ import express,{Request,Response,NextFunction}
  import {UserInstance } from '../model/user'
  import bcrypt from 'bcryptjs'
  import {MovieInstance} from "../model/movie"
+import { request } from 'http'
 
  export async function RegisterUser(req:Request, res:Response, next:NextFunction) {
     const id = uuidv4()
@@ -12,8 +13,9 @@ import express,{Request,Response,NextFunction}
        const validationResult = registerSchema.validate(req.body,options)
        if( validationResult.error){
           return res.status(400).json({
-             Error:validationResult.error.details[0].message
+             Error:validationResult.error.details[0].message,
             })
+           
          }
          const duplicatEmail = await UserInstance.findOne({where:{email:req.body.email}})
          if(duplicatEmail){
@@ -63,16 +65,21 @@ import express,{Request,Response,NextFunction}
                   res.status(401).json({
                      message:"Password do not match"
                   })
-               }
-               
-               if(validUser){
-                  res.status(200).json({
-                     message:"Successfully logged in",
-                     token,
-                     User
-                     
+               }else{
+                  res.cookie("token", token,{
+                     httpOnly: true,
+                     maxAge: 1000 * 60 * 60 * 24,
                   })
+                  res.cookie("id", id,{
+                     httpOnly: true,
+                     maxAge: 1000 * 60 * 60 * 24,
+                  })
+                  
+                  res.redirect("/users/dashboard")
                }
+
+              
+            
                
             }catch(err){
                res.status(500).json({
@@ -94,7 +101,7 @@ import express,{Request,Response,NextFunction}
                }]})
                console.log("after")
       res.status(200).json({
-         msg:"You have successfully fetch all todos",
+         msg:"You have successfully fetch all movies",
          count:record.count,
          record:record.rows
       })
@@ -105,4 +112,22 @@ import express,{Request,Response,NextFunction}
     })
 }
 
+}
+
+export async function getUniqueUserMovie(req:Request, res: Response, next: NextFunction){
+   let id = req.cookies.id
+   try {
+      const record = await UserInstance.findOne({
+         where:{id}, include: [{
+            model: MovieInstance,
+            as: "movies"
+         }]
+      });
+      res.render("dashboard", {record})
+   } catch (error) {
+      res.status(500).json({
+         msg: "failed to read",
+         route:"/read"
+      })
+   }
 }

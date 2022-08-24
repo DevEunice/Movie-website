@@ -25,6 +25,7 @@ export const registerSchema = Joi.object().keys({
     // phonenumber:Joi.string().length(11).pattern(/^[0-9]+$/).required(),
     password:Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/),
     confirm_password:Joi.ref("password")
+  
 }).with('password', 'confirm_password')
 
 export const loginSchema = Joi.object().keys({

@@ -4,7 +4,7 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan'
 import db from './config/database.config'
-
+import cors from 'cors'
 import userRouter from './routes/users';
 import movieRouter from './routes/movies';
 import pages from './routes/pages';
@@ -23,13 +23,14 @@ const app = express();
 app.set('views', path.join(__dirname, "..",'views'));
 app.set('view engine', 'ejs');
 
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join('public')));
 
-app.use('/', pages);
+app.use('', pages);
 app.use('/users', userRouter);
 app.use('/movies', movieRouter);
 

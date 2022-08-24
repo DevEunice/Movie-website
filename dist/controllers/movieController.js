@@ -16,13 +16,17 @@ async function Movie(req, res, next) {
                 Error: validationResult.error.details[0].message
             });
         }
-        console.log(verified);
-        console.log(id);
-        const record = await movie_1.MovieInstance.create({ ...req.body, id, userId: verified.id });
-        return res.status(201).json({
-            msg: "You have successfully created a todo",
-            record
-        });
+        const record = await movie_1.MovieInstance.create({ id, ...req.body, userId: verified.id });
+        //   return res.status(201).json({
+        //        msg:"You have successfully created a movie",
+        //        record
+        //    })
+        res.redirect('/users/dashboard');
+        // const user = await UserInstance.findOne({
+        //    where: {id: verified.id},
+        //    include: [{ model: MovieInstance, as: "movies"}]
+        // })
+        //res.redirect("/users/dashboard")
     }
     catch (err) {
         console.log(err);
@@ -45,12 +49,17 @@ async function getMovies(req, res, next) {
                     as: 'users'
                 }]
         });
-        res.render("index", { value: record.rows });
-        res.status(200).json({
-            msg: "You have successfully fetch all todos",
-            count: record.count,
-            record: record.rows
-        });
+        const eunice = req.headers['postman'];
+        if (eunice) {
+            res.status(200).json({
+                msg: "You have successfully fetch all movies",
+                count: record.count,
+                record: record.rows
+            });
+        }
+        else {
+            res.render("index", { value: record.rows });
+        }
     }
     catch (error) {
         console.log(error);
@@ -65,14 +74,15 @@ async function getSingleMovies(req, res, next) {
     try {
         const { id } = req.params;
         const record = await movie_1.MovieInstance.findOne({ where: { id } });
-        return res.status(200).json({
-            msg: "Successfully gotten user information",
-            record
-        });
+        // return res.status(200).json({
+        //    msg:"Successfully gotten user information",
+        //    record:record
+        // })
+        return record;
     }
     catch (error) {
         res.status(500).json({
-            msg: "failed to read single todo",
+            msg: "failed to read single movie",
             route: "/read/:id"
         });
     }
@@ -91,7 +101,7 @@ async function updateMovies(req, res, next) {
         const record = await movie_1.MovieInstance.findOne({ where: { id } });
         if (!record) {
             return res.status(404).json({
-                Error: "Cannot find existing todo",
+                Error: "Cannot find existing movie",
             });
         }
         const updatedrecord = await record.update({
@@ -100,10 +110,11 @@ async function updateMovies(req, res, next) {
             image: image,
             price: price
         });
-        res.status(200).json({
-            msg: "You have successfully updated your todo",
-            updatedrecord
-        });
+        res.redirect('/users/dashboard');
+        //   res.status(200).json({
+        //     msg:"You have successfully updated your movie",
+        //     updatedrecord
+        //  })
     }
     catch (error) {
         res.status(500).json({
@@ -119,14 +130,15 @@ async function deleteMovies(req, res, next) {
         const record = await movie_1.MovieInstance.findOne({ where: { id } });
         if (!record) {
             return res.status(404).json({
-                msg: "Cannot find todo"
+                msg: "Cannot find movie"
             });
         }
         const deletedRecord = await record.destroy();
-        return res.status(200).json({
-            msg: "Todo deleted successfully",
-            deletedRecord
-        });
+        // return res.status(200).json({
+        //    msg: "Movie deleted successfully",
+        //    deletedRecord 
+        // })
+        res.redirect('/users/dashboard');
     }
     catch (error) {
         res.status(500).json({
